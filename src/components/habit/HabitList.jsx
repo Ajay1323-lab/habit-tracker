@@ -40,14 +40,14 @@ const HabitList = ({ dayIndex }) => {
 
         return (
           <Box
-            key={habitKey}
+            key={`${dayIndex}-${habitKey}`}
             sx={{
               mb: 2,
               p: 2,
               borderRadius: 2,
-              bgcolor: habit.done ? habitMeta.color : "#FFFFFF",
+              bgcolor: habit.done ? `${habitMeta.color}20` : "#FFFFFF",
               border: "1px solid",
-              borderColor: habit.done ? "transparent" : "#E0E0E0",
+              borderColor: habit.done ? habitMeta.color : "#E0E0E0",
               transition: "all 0.25s ease",
               boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
             }}
@@ -93,7 +93,7 @@ const HabitList = ({ dayIndex }) => {
                   }
                   checkedIcon={
                     <CheckCircleIcon
-                      sx={{ color: "#2E7D32", fontSize: 28 }}
+                      sx={{ color: habitMeta.color, fontSize: 28 }}
                     />
                   }
                 />
@@ -120,7 +120,7 @@ const HabitList = ({ dayIndex }) => {
                   size="small"
                   multiline
                   rows={3}
-                  value={habit.note}
+                  value={habit.note || ""}
                   onChange={e =>
                     updateHabitNote(dayIndex, habitKey, e.target.value)
                   }

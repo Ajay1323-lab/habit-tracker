@@ -7,6 +7,13 @@ export const HabitContext = createContext();
 
 const DAYS_IN_MONTH = dayjs().daysInMonth();
 
+/* ---------- Email Validation Helper ---------- */
+const isValidEmail = (email) => {
+  if (!email || typeof email !== 'string') return false;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length > 5;
+};
+
 /* ---------- Helpers ---------- */
 const createEmptyDay = (date, habitMaster) => {
   const habits = {};
@@ -29,11 +36,17 @@ const buildInitialState = (habitMaster = []) => ({
 
 /* ---------- Provider ---------- */
 export const HabitProvider = ({ children }) => {
-  const [email, setEmail] = useState(getUserEmail());
+  const [email, setEmail] = useState(() => {
+    const userEmail = getUserEmail();
+    return isValidEmail(userEmail) ? userEmail : null;
+  });
 
   /* 🔁 react to profile save */
   useEffect(() => {
-    const sync = () => setEmail(getUserEmail());
+    const sync = () => {
+      const userEmail = getUserEmail();
+      setEmail(isValidEmail(userEmail) ? userEmail : null);
+    };
     window.addEventListener("storage", sync);
     sync();
     return () => window.removeEventListener("storage", sync);
@@ -69,36 +82,49 @@ export const HabitProvider = ({ children }) => {
 
   /* ---------- Actions ---------- */
 
-  const addHabit = ({ label, icon, color }) => {
-    if (!email) return false;
-    const key = label.toLowerCase().replace(/\s+/g, "_");
+const addHabit = ({ label, icon, color }) => {
+  if (!email) return false;
+  const key = label.toLowerCase().replace(/\s+/g, "_");
 
-    setState(prev => {
-      if (prev.habitMaster.some(h => h.key === key)) return prev;
+  setState(prev => {
+    // Prevent duplicate
+    if (prev.habitMaster.some(h => h.key === key)) return prev;
 
-      const index = prev.habitMaster.length;
+    const index = prev.habitMaster.length;
+    const newHabit = {
+      key,
+      label,
+      icon: icon || ICON_OPTIONS[index % ICON_OPTIONS.length],
+      color: color || COLOR_OPTIONS[index % COLOR_OPTIONS.length],
+    };
 
-      const newHabit = {
-        key,
-        label,
-        icon: icon || ICON_OPTIONS[index % ICON_OPTIONS.length],
-        color: color || COLOR_OPTIONS[index % COLOR_OPTIONS.length],
-      };
+    // Only add the new habit from TODAY onwards
+    const today = dayjs().format("YYYY-MM-DD");
 
+    const updatedDays = prev.days.map(day => {
+      // If this day is in the past → do NOT add the new habit
+      if (day.date < today) {
+        return day;
+      }
+
+      // For today and future days → add the habit as undone
       return {
-        habitMaster: [...prev.habitMaster, newHabit],
-        days: prev.days.map(day => ({
-          ...day,
-          habits: {
-            ...day.habits,
-            [key]: { done: false, note: "" },
-          },
-        })),
+        ...day,
+        habits: {
+          ...day.habits,
+          [key]: { done: false, note: "" },
+        },
       };
     });
 
-    return true;
-  };
+    return {
+      habitMaster: [...prev.habitMaster, newHabit],
+      days: updatedDays,
+    };
+  });
+
+  return true;
+};
 
   const toggleHabit = (dayIndex, habitKey) => {
     setState(prev => {
@@ -144,6 +170,21 @@ export const HabitProvider = ({ children }) => {
     }));
   };
 
+  // Check if user has completed profile
+  const getUserProfile = () => {
+    try {
+      const profile = localStorage.getItem('userProfile');
+      return profile ? JSON.parse(profile) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const userProfile = getUserProfile();
+  const hasCompleteProfile = userProfile && 
+                            userProfile.name && 
+                            userProfile.name.trim() !== '' && 
+                            isValidEmail(userProfile.email);
 
   return (
     <HabitContext.Provider
@@ -155,6 +196,8 @@ export const HabitProvider = ({ children }) => {
         updateHabitNote,
         deleteHabit,
         hasEmail: !!email,
+        userProfile,
+        hasCompleteProfile,
       }}
     >
       {children}

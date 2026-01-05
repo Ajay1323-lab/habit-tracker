@@ -1,181 +1,92 @@
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+// ProgressChart.js — Final Touch (already perfect, just minor polish)
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import dayjs from "dayjs";
 import { calculateDayScore } from "../../services/habitService";
-import { Box } from "@mui/material";
+import { useContext, useState } from "react";
 
-const COLORS = {
-  primary: "#7C4DFF",
-  muted: "#E0E0E0",
-  success: "#2E7D32",
-};
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload?.length) return null;
-
-  return (
-    <Box
-      sx={{
-        bgcolor: "#fff",
-        p: "8px 12px",
-        borderRadius: 2,
-        boxShadow: "0 8px 20px rgba(0,0,0,0.12)",
-        fontSize: 13,
-      }}
-    >
-      <strong>{label}</strong>
-      <div>{payload[0].value}%</div>
-    </Box>
-  );
-};
-
-const ChartWrapper = ({ children }) => (
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "center",      // ✅ CENTER CHART
-    }}
-  >
-    <Box
-      sx={{
-        width: "100%",
-        maxWidth: 720,               // ✅ PREVENT OVER-STRETCH
-        height: { xs: 240, md: 280 },// ✅ RESPONSIVE HEIGHT
-      }}
-    >
-      {children}
-    </Box>
-  </Box>
-);
+const COLORS = { primary: "#7C4DFF", muted: "#E0E0E0" };
 
 const ProgressChart = ({ days, selectedDayIndex, view }) => {
-  let data = [];
-
-  /* ---------------- DAILY (PIE) ---------------- */
   if (view === "daily") {
     const day = days[selectedDayIndex];
     const total = Object.keys(day.habits).length;
     const done = Object.values(day.habits).filter(h => h.done).length;
-    const percent = total ? Math.round((done / total) * 100) : 0;
+   const percent = total === 0 ? 0 : Math.round((done / total) * 100); 
 
-    data = [
+    const data = [
       { name: "Done", value: done },
-      { name: "Missed", value: total - done },
+      { name: "Pending", value: total - done },
     ];
 
     return (
-      <ChartWrapper>
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="value"
-              innerRadius={60}
-              outerRadius={90}
-              paddingAngle={6}
-            >
-              <Cell fill={COLORS.primary} />
-              <Cell fill={COLORS.muted} />
-            </Pie>
-
-            {/* Center Text */}
-            <text
-              x="50%"
-              y="45%"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              style={{ fontSize: 24, fontWeight: 800 }}
-            >
-              {percent}%
-            </text>
-            <text
-              x="50%"
-              y="55%"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              style={{ fontSize: 12, fill: "#666" }}
-            >
-              Today
-            </text>
-
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
-      </ChartWrapper>
+      <ResponsiveContainer width="100%" height={280}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="value"
+            innerRadius={80}
+            outerRadius={110}
+            paddingAngle={4}
+          >
+            <Cell fill={COLORS.primary} />
+            <Cell fill={COLORS.muted} />
+          </Pie>
+          <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: 36, fontWeight: 800, fill: COLORS.primary }}>
+            {percent}%
+          </text>
+          <text x="50%" y="58%" textAnchor="middle" style={{ fontSize: 14, fill: "#666" }}>
+            Completed Today
+          </text>
+        </PieChart>
+      </ResponsiveContainer>
     );
   }
 
-  /* ---------------- WEEKLY (BAR) ---------------- */
   if (view === "weekly") {
-    data = days
+    const data = days
       .slice(Math.max(0, selectedDayIndex - 6), selectedDayIndex + 1)
       .map(d => ({
-        label: dayjs(d.date).format("dd"),
+        day: dayjs(d.date).format("ddd"),
         score: calculateDayScore(d),
       }));
 
     return (
-      <ChartWrapper>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} barGap={8}>
-            <XAxis dataKey="label" tickLine={false} />
-            <YAxis domain={[0, 100]} tickLine={false} />
-            <Tooltip content={<CustomTooltip />} />
-            <Bar
-              dataKey="score"
-              fill={COLORS.primary}
-              radius={[8, 8, 0, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartWrapper>
+      <ResponsiveContainer width="100%" height={280}>
+        <BarChart data={data}>
+          <XAxis dataKey="day" tick={{ fontSize: 13 }} />
+          <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
+          <Tooltip formatter={(v) => `${v}%`} />
+          <Bar dataKey="score" fill={COLORS.primary} radius={[12, 12, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
     );
   }
 
-  /* ---------------- MONTHLY (LINE) ---------------- */
-  if (view === "monthly") {
-    const month = dayjs(days[selectedDayIndex].date).month();
-    data = days
-      .filter(d => dayjs(d.date).month() === month)
-      .map(d => ({
-        label: dayjs(d.date).format("DD"),
-        score: calculateDayScore(d),
-      }));
+  // Monthly Line Chart
+  const monthData = days
+    .filter(d => dayjs(d.date).month() === dayjs(days[selectedDayIndex].date).month())
+    .map(d => ({
+      date: dayjs(d.date).format("D"),
+      score: calculateDayScore(d),
+    }));
 
-    return (
-      <ChartWrapper>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
-            <XAxis dataKey="label" tickLine={false} />
-            <YAxis domain={[0, 100]} tickLine={false} />
-            <Tooltip content={<CustomTooltip />} />
-            <Line
-              type="monotone"
-              dataKey="score"
-              stroke={COLORS.primary}
-              strokeWidth={3}
-              dot={{ r: 4 }}
-              activeDot={{ r: 7 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </ChartWrapper>
-    );
-  }
-
-
-  return null;
+  return (
+    <ResponsiveContainer width="100%" height={280}>
+      <LineChart data={monthData}>
+        <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+        <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
+        <Tooltip formatter={(v) => `${v}%`} />
+        <Line
+          type="monotone"
+          dataKey="score"
+          stroke={COLORS.primary}
+          strokeWidth={4}
+          dot={{ fill: COLORS.primary, r: 6 }}
+          activeDot={{ r: 8 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
 };
 
 export default ProgressChart;

@@ -25,27 +25,28 @@ const HabitCalendar = ({ days, selectedIndex, onSelect }) => {
           const date = dayjs(day.date).startOf("day");
           const isToday = date.isSame(today);
           const isFuture = date.isAfter(today);
+          const isPast = date.isBefore(today);
           const isSelected = index === selectedIndex;
 
           const score = calculateDayScore(day);
           const hasProgress = score > 0;
 
-          /* 🎨 Background logic */
+          /* 🎨 BACKGROUND (VISUAL ONLY) */
           const background = isSelected
-            ? "linear-gradient(135deg, #F6E05E, #F5D042)" // Today / selected
+            ? "linear-gradient(135deg, #F6E05E, #F5D042)" // Selected
+            : isToday
+            ? "linear-gradient(135deg, #FEF3C7, #FDE68A)" // Today
+            : hasProgress
+            ? "linear-gradient(135deg, #E0F7FA, #B2EBF2)" // Progress
             : isFuture
             ? isDark
-              ? "rgba(255,255,255,0.04)"
-              : "#E5E7EB" // Disabled future
-            : hasProgress
-            ? "linear-gradient(135deg, #E0F7FA, #B2EBF2)"
+              ? "rgba(255,255,255,0.06)"
+              : "#E5E7EB" // Future (enabled)
             : isDark
             ? "rgba(255,255,255,0.08)"
             : "#F1F5F9";
 
-          const textColor = isFuture
-            ? "#9CA3AF"
-            : isSelected
+          const textColor = isSelected
             ? "#1F2937"
             : isDark
             ? "#E5E7EB"
@@ -55,9 +56,7 @@ const HabitCalendar = ({ days, selectedIndex, onSelect }) => {
             <Paper
               key={day.date}
               elevation={isSelected ? 4 : 0}
-              onClick={() => {
-                if (!isFuture) onSelect(index); // 🚫 BLOCK FUTURE
-              }}
+              onClick={() => onSelect(index)} // ✅ ALLOW ALL DATES
               sx={{
                 scrollSnapAlign: "center",
                 minWidth: 72,
@@ -66,7 +65,7 @@ const HabitCalendar = ({ days, selectedIndex, onSelect }) => {
                 py: 1,
                 textAlign: "center",
                 borderRadius: 3,
-                cursor: isFuture ? "not-allowed" : "pointer",
+                cursor: "pointer", // ✅ always clickable
                 background,
                 color: textColor,
                 fontWeight: 600,
@@ -74,15 +73,14 @@ const HabitCalendar = ({ days, selectedIndex, onSelect }) => {
                 flexDirection: "column",
                 justifyContent: "center",
                 transition: "all 0.25s ease",
-                opacity: isFuture ? 0.6 : 1,
                 boxShadow: isSelected
                   ? "0 8px 18px rgba(0,0,0,0.18)"
                   : "none",
                 "&:hover": {
-                  transform: isFuture ? "none" : "translateY(-2px)",
+                  transform: "translateY(-2px)",
                 },
                 "&:active": {
-                  transform: isFuture ? "none" : "scale(0.97)",
+                  transform: "scale(0.97)",
                 },
               }}
             >
@@ -106,8 +104,6 @@ const HabitCalendar = ({ days, selectedIndex, onSelect }) => {
               >
                 {date.format("D")}
               </Typography>
-
-            
             </Paper>
           );
         })}

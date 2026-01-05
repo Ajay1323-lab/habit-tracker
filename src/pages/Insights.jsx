@@ -4,7 +4,6 @@ import {
   Typography,
   Card,
   LinearProgress,
-  Grid,
   IconButton,
   Collapse,
 } from "@mui/material";
@@ -23,10 +22,10 @@ const AnimatedNumber = ({ value, duration = 800 }) => {
 
   useEffect(() => {
     let start = 0;
-    const increment = value / (duration / 16);
+    const step = value / (duration / 16);
 
     const timer = setInterval(() => {
-      start += increment;
+      start += step;
       if (start >= value) {
         setDisplay(value);
         clearInterval(timer);
@@ -70,59 +69,47 @@ const Insights = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        px: { xs: 2, sm: 3, md: 4 },
-        py: 4,
-        background: "linear-gradient(135deg,#667eea,#764ba2)",
+        py: { xs: 3, sm: 4 },
+        px: { xs: 2, sm: 3 },
+        background: "linear-gradient(180deg,#f8fafc,#eef2ff)",
       }}
     >
-      {/* Center container with max width */}
-      <Box sx={{ maxWidth: 1200, mx: "auto" }}>
-        {/* ================= STICKY HEADER ================= */}
-        <Box
-          sx={{
-            position: "sticky",
-            top: 0,
-            zIndex: 10,
-            pb: 3,
-            mb: 4,
-            background: "linear-gradient(135deg,#667eea,#764ba2)",
-          }}
-        >
-          <Box color="#fff" textAlign="center">
-            <Box display="flex" alignItems="center" justifyContent="center" gap={1.5}>
-              <TrendingUpIcon sx={{ fontSize: 28 }} />
-              <Typography variant="h5" fontWeight={700}>
-                Insights
-              </Typography>
-            </Box>
-            <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
-              Visual overview of your habit performance
+      <Box sx={{ maxWidth: 1100, mx: "auto" }}>
+
+        {/* ================= HEADER ================= */}
+        <Box textAlign="center" mb={4}>
+          <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
+            <TrendingUpIcon sx={{ color: "#4f46e5" }} />
+            <Typography variant="h5" fontWeight={800}>
+              Insights
             </Typography>
           </Box>
+          <Typography variant="body2" color="text.secondary">
+            Understand your habit performance
+          </Typography>
         </Box>
 
-        {/* ================= SUMMARY CARDS (FULL WIDTH STACKED) ================= */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mb: 4 }}>
+        {/* ================= SUMMARY CARDS ================= */}
+        <Box display="flex" flexDirection="column" gap={2.5} mb={4}>
           {/* Average */}
           <Card
             sx={{
               p: 3,
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 3,
+              borderRadius: 4,
+              background: "linear-gradient(135deg,#6366f1,#818cf8)",
               color: "#fff",
-              borderRadius: 3,
-              background: "linear-gradient(135deg,#5F2EEA,#7F3DFF)",
-              boxShadow: "0 8px 24px rgba(95,46,234,0.3)",
+              boxShadow: "0 12px 32px rgba(99,102,241,0.35)",
+              display: "flex",
+              alignItems: "center",
+              gap: 2.5,
             }}
           >
-            <TrendingUpIcon sx={{ fontSize: 48 }} />
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h3" fontWeight={700}>
+            <TrendingUpIcon sx={{ fontSize: 42 }} />
+            <Box>
+              <Typography variant="h3" fontWeight={800}>
                 <AnimatedNumber value={avgCompletion} />%
               </Typography>
-              <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              <Typography sx={{ opacity: 0.9 }}>
                 Average Completion
               </Typography>
             </Box>
@@ -132,22 +119,21 @@ const Insights = () => {
           <Card
             sx={{
               p: 3,
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 3,
+              borderRadius: 4,
+              background: "linear-gradient(135deg,#16a34a,#4ade80)",
               color: "#fff",
-              borderRadius: 3,
-              background: "linear-gradient(135deg,#00C853,#00E676)",
-              boxShadow: "0 8px 24px rgba(0,200,83,0.3)",
+              boxShadow: "0 12px 32px rgba(22,163,74,0.35)",
+              display: "flex",
+              alignItems: "center",
+              gap: 2.5,
             }}
           >
-            <StarIcon sx={{ fontSize: 48 }} />
-            <Box sx={{ flex: 1 }}>
-              <Typography fontWeight={700} variant="h5">
+            <StarIcon sx={{ fontSize: 42 }} />
+            <Box>
+              <Typography variant="h6" fontWeight={700}>
                 {best ? `${best.icon} ${best.label}` : "N/A"}
               </Typography>
-              <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              <Typography sx={{ opacity: 0.9 }}>
                 Best Habit (<AnimatedNumber value={best?.rate || 0} />%)
               </Typography>
             </Box>
@@ -157,46 +143,40 @@ const Insights = () => {
           <Card
             sx={{
               p: 3,
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 3,
+              borderRadius: 4,
+              background: "linear-gradient(135deg,#f59e0b,#fbbf24)",
               color: "#fff",
-              borderRadius: 3,
-              background: "linear-gradient(135deg,#FF9800,#FF6F00)",
-              boxShadow: "0 8px 24px rgba(255,152,0,0.3)",
+              boxShadow: "0 12px 32px rgba(245,158,11,0.35)",
+              display: "flex",
+              alignItems: "center",
+              gap: 2.5,
             }}
           >
-            <WarningAmberIcon sx={{ fontSize: 48 }} />
-            <Box sx={{ flex: 1 }}>
-              <Typography fontWeight={700} variant="h5">
+            <WarningAmberIcon sx={{ fontSize: 42 }} />
+            <Box>
+              <Typography variant="h6" fontWeight={700}>
                 {weak ? `${weak.icon} ${weak.label}` : "N/A"}
               </Typography>
-              <Typography variant="body1" sx={{ opacity: 0.9 }}>
+              <Typography sx={{ opacity: 0.9 }}>
                 Needs Attention (<AnimatedNumber value={weak?.rate || 0} />%)
               </Typography>
             </Box>
           </Card>
         </Box>
 
-        {/* ================= COLLAPSIBLE BREAKDOWN ================= */}
+        {/* ================= BREAKDOWN ================= */}
         <Card
           sx={{
             p: { xs: 3, sm: 4 },
-            borderRadius: 3,
-            bgcolor: "rgba(255,255,255,0.95)",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+            borderRadius: 4,
+            bgcolor: "#fff",
+            boxShadow: "0 14px 40px rgba(0,0,0,0.12)",
           }}
         >
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            mb={2}
-          >
-            <Box display="flex" alignItems="center" gap={1.5}>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box display="flex" gap={1} alignItems="center">
               <CheckCircleIcon color="primary" />
-              <Typography variant="h6" fontWeight={700}>
+              <Typography fontWeight={700}>
                 Habit Breakdown
               </Typography>
             </Box>
@@ -205,76 +185,59 @@ const Insights = () => {
               <ExpandMoreIcon
                 sx={{
                   transform: openBreakdown ? "rotate(180deg)" : "rotate(0deg)",
-                  transition: "transform 0.3s",
+                  transition: "0.3s",
                 }}
               />
             </IconButton>
           </Box>
 
           <Collapse in={openBreakdown}>
-            {stats.length === 0 ? (
-              <Typography color="text.secondary" textAlign="center" py={3}>
-                No habit data yet. Start tracking your habits.
-              </Typography>
-            ) : (
-              <Box display="flex" flexDirection="column" gap={3}>
-                {stats.map((h) => (
-                  <Box key={h.key}>
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      mb={0.5}
-                    >
-                      <Typography fontWeight={600}>
-                        {h.icon} {h.label}
-                      </Typography>
-                      <Typography
-                        fontWeight={700}
-                        sx={{
-                          color:
-                            h.rate >= 70
-                              ? "#2E7D32"
-                              : h.rate >= 40
-                              ? "#EF6C00"
-                              : "#C62828",
-                        }}
-                      >
-                        <AnimatedNumber value={h.rate} />%
-                      </Typography>
-                    </Box>
-
-                    <LinearProgress
-                      variant="determinate"
-                      value={h.rate}
-                      sx={{
-                        height: 10,
-                        borderRadius: 6,
-                        bgcolor: "#e5e7eb",
-                        "& .MuiLinearProgress-bar": {
-                          borderRadius: 6,
-                          background:
-                            h.rate >= 70
-                              ? "linear-gradient(90deg,#4CAF50,#66BB6A)"
-                              : h.rate >= 40
-                              ? "linear-gradient(90deg,#FF9800,#FFB74D)"
-                              : "linear-gradient(90deg,#F44336,#EF5350)",
-                        },
-                      }}
-                    />
-
+            <Box mt={3} display="flex" flexDirection="column" gap={3}>
+              {stats.map((h) => (
+                <Box key={h.key}>
+                  <Box display="flex" justifyContent="space-between" mb={0.5}>
+                    <Typography fontWeight={600}>
+                      {h.icon} {h.label}
+                    </Typography>
                     <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      mt={0.5}
-                      display="block"
+                      fontWeight={700}
+                      color={
+                        h.rate >= 70
+                          ? "success.main"
+                          : h.rate >= 40
+                          ? "warning.main"
+                          : "error.main"
+                      }
                     >
-                      {h.done}/{days.length} days completed
+                      <AnimatedNumber value={h.rate} />%
                     </Typography>
                   </Box>
-                ))}
-              </Box>
-            )}
+
+                  <LinearProgress
+                    variant="determinate"
+                    value={h.rate}
+                    sx={{
+                      height: 10,
+                      borderRadius: 6,
+                      bgcolor: "#e5e7eb",
+                      "& .MuiLinearProgress-bar": {
+                        borderRadius: 6,
+                        background:
+                          h.rate >= 70
+                            ? "linear-gradient(90deg,#16a34a,#4ade80)"
+                            : h.rate >= 40
+                            ? "linear-gradient(90deg,#f59e0b,#fbbf24)"
+                            : "linear-gradient(90deg,#dc2626,#ef4444)",
+                      },
+                    }}
+                  />
+
+                  <Typography variant="caption" color="text.secondary">
+                    {h.done}/{days.length} days completed
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
           </Collapse>
         </Card>
       </Box>

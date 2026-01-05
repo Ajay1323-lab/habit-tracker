@@ -4,7 +4,14 @@ export const ICON_OPTIONS = [
 ];
 
 export const COLOR_OPTIONS = [
-  "#BBDEFB", "#F8BBD0", "#C5CAE9",
-  "#FFF9C4", "#B2EBF2", "#E1BEE7",
-  "#DCEDC8", "#FFCDD2", "#B2DFDB"
+  "#1976D2", // Dark Blue
+  "#D32F2F", // Dark Red
+  "#303F9F", // Dark Indigo
+  "#F57C00", // Dark Orange
+  "#388E3C", // Dark Green
+  "#7B1FA2", // Dark Purple
+  "#C2185B", // Dark Pink
+  "#0097A7", // Dark Cyan
+  "#689F38", // Dark Lime
+  "#5D4037"  // Dark Brown
 ];
